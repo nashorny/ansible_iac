@@ -1,0 +1,28 @@
+- name: elk-install-kibana > Install kibana and nginx
+  package: 
+    state: present
+    name: '{{ item }}'
+  with_items:
+    - kibana
+    - nginx
+
+- name: elk-install-kibana > Create nginx access user
+  shell: 'echo "nash:$(openssl passwd -apr1 123456a)" | sudo tee -a /etc/nginx/htpasswd.users'
+
+- name: elk-install-kibana > Copy nginx configuration
+  template: src=nginx dest=/etc/nginx/sites-available/{{ VMNAME }}
+
+- name: elk-install-kibana > Create soft link to nginx site config
+  file: state=link src=/etc/nginx/sites-available/{{ VMNAME }} dest=/etc/nginx/sites-enabled/{{ VMNAME }}
+
+- name: elk-install-kibana > Enable kibana and nginx services
+  systemd: 
+    state: started
+    enabled: yes
+    name: '{{ item }}'
+  with_items:
+    - kibana
+    - nginx
+
+- name: elk-install-kibana > Restart nginx
+  systemd: state=restarted name=nginx

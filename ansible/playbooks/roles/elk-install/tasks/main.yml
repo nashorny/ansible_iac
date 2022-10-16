@@ -1,0 +1,20 @@
+- name: elk-install-elastic
+  become: true
+  import_tasks: elk-install-elastic.yml
+
+- name: elk-install-kibana
+  become: true
+  import_tasks: elk-install-kibana.yml
+
+- name: elk-install-load
+  become: true
+  import_tasks: elk-install-load.yml
+
+- name: elk-install-logstash
+  become: true
+  import_tasks: elk-install-logstash.yml
+
+# - name: elk-install-beats
+#   become: true
+#   import_tasks: elk-install-beats.yml
+

@@ -1,0 +1,71 @@
+- name: kube-install-tasks > Disable selinux
+  selinux: state=disabled
+  when: ansible_distribution == "CentOS"
+
+- name: kube-install-tasks > Remove swapfile from /etc/fstab
+  mount: name={{ item }} fstype=swap state=absent
+  with_items:
+    - swap
+    - none
+
+- name: kube-install-tasks > Disable swap
+  shell: 'swapoff -a'
+  when: ansible_swaptotal_mb > 0
+
+- name: kube-install-tasks > change hostname
+  hostname: name={{ inventory_hostname }}
+
+# - name: kube-install-tasks > Enable cgconfig daemon
+#   systemd: state=started enabled=yes name=cgconfig
+
+- block:
+    - name: kube-install-tasks > Install requirements
+      package: state=present name={{ item }}
+      with_items:
+        - '{{ REQUIREMENTS }}'
+
+    - name: kube-install-tasks > Install RPM Keys
+      rpm_key: state=present key={{ item }}
+      with_items:
+        - 'https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+        - 'https://packages.cloud.google.com/yum/doc/yum-key.gpg'
+
+    - name: kube-install-tasks > add kubernetes repo
+      yum_repository: name=kubernetes description="kubernetes repo" throttle=300000 gpgcheck=yes enabled=yes baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    
+    - name: kube-install-tasks > Configure docker daemon
+      lineinfile: state=present path='/etc/sysconfig/docker' regexp='^OPTIONS=' line='OPTIONS=--selinux-enabled -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock'
+  
+  when: ansible_distribution == "CentOS"
+
+- block:
+    - name: kube-install-tasks > Install requirements
+      package: state=present name={{ item }}
+      with_items:
+        - '{{ REQUIREMENTSUBUNTU }}'
+
+    - name: kube-install-tasks > Install GPG Keys
+      apt_key: state=present url=https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+    - name: kube-install-tasks > add kubernetes repo
+      apt_repository: state=present repo="deb https://apt.kubernetes.io/ kubernetes-xenial main" filename=kubernetes
+  
+  when: ansible_distribution == "Ubuntu"
+
+- name: kube-install-tasks > Enable docker daemon
+  systemd: state=started enabled=yes name=docker
+
+- name: kube-install-tasks > Install kubeadm
+  package: state=present name=kubeadm
+  retries: 3
+  delay: 5
+  register: result
+  until: result is succeeded
+
+- name: kube-install-tasks > Configure Kubelet service
+  lineinfile: state=present path='/etc/sysconfig/kubelet' regexp='^KUBELET_EXTRA_ARGS=' line='KUBELET_EXTRA_ARGS=--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice'
+
+- name: Modify kernel parameters
+  sysctl: name={{ item }} value=1 reload=yes state=present
+  with_items:
+    - '{{ KERNELPARAMS }}'

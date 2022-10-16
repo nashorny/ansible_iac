@@ -1,0 +1,22 @@
+---
+- name: clone-vm-kvm-tasks > Shutdown current Nodes
+  shell: state=destroyed name={{ item.hostn }}
+  ignore_errors: yes
+  with_items:
+    - '{{ KUBENODES }}'
+
+- name: clone-vm-kvm-tasks > Remove storage Nodes
+  file: state=absent path='/var/lib/libvirt/images/{{ item.hostn }}.qcow2'
+  with_items:
+    - '{{ KUBENODES }}'
+
+- name: clone-vm-kvm-tasks > Launch Clone
+  shell: 'virt-clone --original {{ VM_TEMPLATE }} --name {{ item.hostn }} --mac {{ item.mac }} --auto-clone'
+  with_items:
+    - '{{ KUBENODES }}'
+
+- name: clone-vm-kvm-tasks > Start all nodes
+  virt: state=running name={{ item.hostn }}
+  with_items:
+    - '{{ KUBENODES }}'
+

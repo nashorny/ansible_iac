@@ -1,0 +1,14 @@
+- name: kube-master-tasks > Configure dashboard
+  shell: 'kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml'
+
+- name: kube-master-tasks > Create user for dashboard
+  shell: 'kubectl create serviceaccount nash --namespace kube-system'
+
+- name: kube-master-tasks > Create role binding for dashboard user
+  shell: 'kubectl create clusterrolebinding nash-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:nash'
+
+- name: kube-master-tasks > Create user for dashboard
+  shell: 'kubectl get secret $(kubectl get serviceaccount nash -n kube-system -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" -n kube-system | base64 --decode > /tmp/nash.token'
+
+- name: kube-master-tasks > fetch dashboard token
+  fetch: src='/tmp/nash.token' dest='~/.kube/nash.token' flat=yes

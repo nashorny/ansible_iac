@@ -1,0 +1,18 @@
+- name: elk-install-logstash > Install logstash
+  package: state=present name=logstash
+  environment:
+    JAVA_HOME: '/usr/share/elasticsearch/jdk'
+
+- name: elk-install-logstash > transfer logstash config files 
+  template: src={{ item }} dest=/etc/logstash/conf.d
+  with_items:
+    - '15-stock-data.conf'
+
+- name: elk-install-logstash > enable logstash service
+  systemd: state=stopped enabled=yes name=logstash
+
+- name: elk-install-logstash > edit logstash env service file
+  lineinfile: state=present path=/etc/default/logstash line='JAVA_HOME=/usr/share/elasticsearch/jdk'
+
+- name: elk-install-logstash > start logstash service
+  systemd: state=started name=logstash

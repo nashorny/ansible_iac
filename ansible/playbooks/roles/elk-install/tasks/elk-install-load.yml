@@ -1,0 +1,5 @@
+- name: elk-install-load > create data folder
+  file: state=directory path=/data
+
+- name: elk-install-load > transfer csv file
+  template: src=AMS.MC.csv dest=/data/

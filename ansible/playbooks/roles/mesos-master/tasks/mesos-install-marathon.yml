@@ -1,0 +1,14 @@
+- name: Mesos-Install-marathon > Create Marathon conf folder
+  file: state=directory path=/etc/marathon/conf
+
+- name: Mesos-Install-marathon > Config Marathon hostname
+  copy: src=/etc/mesos-master/hostname dest=/etc/marathon/conf remote_src=yes
+
+- name: Mesos-Install-marathon > Configure Zookeepers for Marathon
+  copy: src=/etc/mesos/zk dest=/etc/marathon/conf/master remote_src=yes
+  
+- name: Mesos-Install-marathon > Configure Marathon to comunicate zookeepers
+  copy: src=/etc/marathon/conf/master dest=/etc/marathon/conf/zk remote_src=yes
+
+- name: Mesos-Install-marathon > Configure Marathon to comunicate zookeepers 2
+  replace: path=/etc/marathon/conf/zk regexp='mesos' replace='marathon'

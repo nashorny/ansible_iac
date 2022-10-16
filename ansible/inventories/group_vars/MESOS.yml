@@ -1,0 +1,46 @@
+CLUSTER: Mesos
+
+KERNELPARAMS:
+  - 'net.ipv6.conf.all.disable_ipv6'
+  - 'net.ipv6.conf.default.disable_ipv6'
+  - 'net.ipv6.conf.lo.disable_ipv6'
+  - 'net.ipv4.ip_forward'
+
+REQUIREMENTS:
+  - 'docker'
+  - 'net-tools'
+  # - 'libcgroup'
+  # - 'libcgroup-tools'
+
+REQUIREMENTSUBUNTU:
+  - 'docker.io'
+  - 'net-tools'
+
+# MESOSPKG:
+#   - 'mesos'
+#   - 'mesosphere-zookeeper'
+#   - 'marathon'
+
+MASTERPKG:
+  - 'mesosphere-zookeeper'
+  - 'marathon.x86_64'
+  # - 'chronos'
+
+MASTERPKGUBUNTU:
+  - 'zookeeper'
+  - 'marathon'  
+
+SLAVEPKG:
+# - 'mesosphere-zookeeper'
+
+MASTERSERVICES:
+  - 'mesos-master'
+  - 'zookeeper'
+  - 'marathon'
+
+SLAVESERVICES:
+  - 'mesos-slave'
+
+MASTERSFILE: 'mesos.zk'
+
+QUORUM: 2

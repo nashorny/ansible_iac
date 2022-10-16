@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ingress-nginx-configmap
+data:
+  hsts: "false"
+  ssl-redirect: "false"

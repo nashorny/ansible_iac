@@ -1,0 +1,2 @@
+- name: elk-install-beats > Install filebeat
+  package: state=present name=filebeat

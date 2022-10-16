@@ -1,0 +1,23 @@
+- name: kube-master-tasks > Enable kubelet service
+  systemd: state=started enabled=yes name=kubelet
+
+- name: kube-master-tasks > Init kubernetes master
+  shell: 'kubeadm init --apiserver-advertise-address={{ ansible_eth0.ipv4.address }} --node-name={{ inventory_hostname }} --pod-network-cidr=10.244.0.0/16'
+
+- name: kube-master-tasks > Create kube directory
+  file: state=directory path=~/.kube
+
+- name: kube-master-tasks > copy kubernetes config file
+  shell: 'cp -i /etc/kubernetes/admin.conf ~/.kube/config'
+
+- name: kube-master-tasks > Install flannel networking container
+  shell: 'kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
+
+- name: kube-master-tasks > Generate join command
+  shell: 'kubeadm token create --print-join-command > /tmp/join-command.sh'
+
+- name: kube-master-tasks > fetch join-command to ansible
+  fetch: src=/tmp/join-command.sh dest=/tmp/ flat=yes
+
+- name: kube-master-tasks > fetch kubectl config file
+  fetch: src='/etc/kubernetes/admin.conf' dest='~/.kube/config' flat=yes

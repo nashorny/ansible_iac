@@ -1,0 +1,3 @@
+- name: kube-worker-tasks
+  become: true
+  import_tasks: kube-worker-tasks.yml

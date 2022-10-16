@@ -1,0 +1,4 @@
+---
+- name: clone-vm-kvm-tasks
+  become: true
+  import_tasks: clone-vm-kvm-tasks.yml

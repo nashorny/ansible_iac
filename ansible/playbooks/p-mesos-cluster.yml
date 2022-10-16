@@ -1,0 +1,18 @@
+---
+- name: Install Mesos
+  hosts: MESOS
+  gather_facts: true
+  roles:
+    - role: mesos-install
+
+- name: Install Mesos Master
+  hosts: MESOS
+  gather_facts: false
+  roles:
+    - role: mesos-master
+
+- name: Install Mesos Slave
+  hosts: MESOS
+  gather_facts: false
+  roles:
+    - role: mesos-slave

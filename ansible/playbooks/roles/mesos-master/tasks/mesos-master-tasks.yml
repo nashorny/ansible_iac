@@ -1,0 +1,43 @@
+- name: mesos-master-tasks >  Launch install mesos master packages
+  package: state=present name={{ item }}
+  retries: 3
+  delay: 5
+  with_items:
+    - '{{ MASTERPKG }}'
+  register: result
+  until: result is succeeded
+  when: ansible_distribution == "CentOS"
+
+- name: mesos-master-tasks >  Launch install mesos master packages
+  package: state=present name={{ item }}
+  retries: 3
+  delay: 5
+  with_items:
+    - '{{ MASTERPKGUBUNTU }}'
+  register: result
+  until: result is succeeded
+  when: ansible_distribution == "Ubuntu"
+
+- name: mesos-master-tasks > Config Mesos-Master IP
+  shell: 'echo {{ ansible_eth0.ipv4.address }} > /etc/mesos-master/ip; cp /etc/mesos-master/ip /etc/mesos-master/hostname'
+
+- name: mesos-master-tasks > Create ip file to communicate to ansible host
+  shell: 'echo {{ SERVERNUM }}={{ ansible_eth0.ipv4.address }} > /tmp/{{ ansible_eth0.ipv4.address }}.zk'
+
+- name: mesos-master-tasks > Fetching master ips to ansible host
+  fetch: src=/tmp/{{ ansible_eth0.ipv4.address }}.zk dest=/tmp/{{ ansible_eth0.ipv4.address }}.zk flat=yes
+
+- name: mesos-master-tasks > Copy ip files to nodes
+  copy: src={{ item }} dest=/tmp
+  with_fileglob:
+    - /tmp/*.zk
+
+- name: mesos-master-tasks > Construct Masters list
+  shell: 'cat $(ls /tmp/*.zk | sort) > /tmp/{{ MASTERSFILE }}'
+
+- name: mesos-master-tasks > Config Mesos master Quorum
+  shell: "echo $(($(wc -l /tmp/{{ MASTERSFILE }} | cut -d' ' -f1)/2+1)) > /etc/mesos-master/quorum"
+
+- name: mesos-master-tasks > Ensure stop mesos-slave because master
+  systemd: state=stopped enabled=no name=mesos-slave
+

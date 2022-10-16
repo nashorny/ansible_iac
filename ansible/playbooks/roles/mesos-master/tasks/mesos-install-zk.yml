@@ -1,0 +1,25 @@
+- name: mesos-install-zk > Config zookeepers id
+  shell: 'echo {{ SERVERNUM }} > /var/lib/zookeeper/myid'
+
+- name: mesos-install-zk > Register masters files
+  shell: 'cat /tmp/{{ MASTERSFILE }}'
+  register: result
+
+- name: mesos-install-zk > Config zookeeper binding address
+  lineinfile: path=/etc/zookeeper/conf/zoo.cfg line="server.{{ item }}:2888:3888" state=present
+  with_items:
+    - '{{ result.stdout_lines }}'
+
+- name: mesos-install-zk > Ensure zk file is not present
+  file: state=absent path=/etc/mesos/zk
+
+- name: mesos-install-zk > Config Mesos master zookeeper
+  shell: "echo -n $(echo -n {{ item }} | cut -d'=' -f2):2181, >> /etc/mesos/zk"
+  with_items:
+    - '{{ result.stdout_lines }}'
+
+- name: mesos-install-zk > Config zookeeper header ip list file
+  shell: "sed 's/^192/zk:\\/\\/192/g' -i /etc/mesos/zk"
+
+- name: mesos-install-zk > Config zookeeper end ip list file
+  shell: "sed 's/,$/\\/mesos/g' -i /etc/mesos/zk"

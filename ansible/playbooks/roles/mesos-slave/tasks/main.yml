@@ -1,0 +1,4 @@
+---
+- name: mesos-slave-tasks
+  become: true
+  import_tasks: mesos-slave-tasks.yml

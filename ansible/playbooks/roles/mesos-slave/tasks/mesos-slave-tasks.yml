@@ -1,0 +1,11 @@
+- name: mesos-slave-tasks > configure mesos containers engines
+  shell: 'echo docker,mesos > /etc/mesos-slave/containerizers'
+
+- name: mesos-slave-tasks > configure docker pull timeout
+  shell: 'echo 5mins > /etc/mesos-slave/executor_registration_timeout'
+
+- name: mesos-slave-tasks > Config Mesos-Slave IP
+  shell: 'echo {{ ansible_eth0.ipv4.address }} > /etc/mesos-slave/ip; cp /etc/mesos-slave/ip /etc/mesos-slave/hostname'
+
+- name: mesos-slave-tasks > Start Mesos Slave
+  systemd: state=started enabled=yes name=mesos-slave

@@ -1,0 +1,15 @@
+- name: elk-install-elastic > Install ELK gpg key
+  apt_key: state=present url="https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+
+- name: elk-install-elastic > add ELK repo
+  apt_repository: state=present filename=elk repo="deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+  
+- name: elk-install-elastic > Install elasticsearch
+  package: state=present name=elasticsearch
+
+- name: elk-install-elastic > edit elasticsearch config file
+  shell: 'echo network.host: \"localhost\" >> /etc/elasticsearch/elasticsearch.yml'
+  #lineinfile: state=present path=/etc/elasticsearch/elasticsearch.yml line='network.host:"localhost"'
+
+- name: elk-install-elastic > Enable elasticsearch service
+  systemd: state=started enabled=yes name=elasticsearch

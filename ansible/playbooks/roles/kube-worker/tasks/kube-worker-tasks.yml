@@ -1,0 +1,8 @@
+- name: kube-worker-tasks > Enable kubelet service
+  systemd: state=started enabled=yes name=kubelet
+
+- name: kube-worker-tasks > copy join-command to workers
+  copy: src=/tmp/join-command.sh dest=/tmp/
+
+- name: kube-worker-tasks > Execute join cluster command
+  shell: '/bin/sh /tmp/join-command.sh'

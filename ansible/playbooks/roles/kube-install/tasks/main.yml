@@ -1,0 +1,4 @@
+---
+- name: kube-master > kube-install-tasks
+  become: true
+  import_tasks: kube-install-tasks.yml

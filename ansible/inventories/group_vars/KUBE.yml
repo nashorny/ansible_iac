@@ -1,0 +1,33 @@
+CLUSTER: Kubernetes
+
+KERNELPARAMS:
+  - 'net.ipv6.conf.all.disable_ipv6'
+  - 'net.ipv6.conf.default.disable_ipv6'
+  - 'net.ipv6.conf.lo.disable_ipv6'
+  - 'net.bridge.bridge-nf-call-arptables'
+  - 'net.bridge.bridge-nf-call-ip6tables'
+  - 'net.bridge.bridge-nf-call-iptables'
+  - 'net.ipv4.ip_forward'
+
+REQUIREMENTSUBUNTU:
+  - 'docker.io'
+  - 'net-tools'
+
+REQUIREMENTS:
+  - 'docker'
+  - 'net-tools'
+  # - 'libcgroup'
+  # - 'libcgroup-tools'
+  # - 'conntrack-tools'
+  # - 'libnetfilter_cthelper'
+  # - 'libnetfilter_cttimeout'
+  # - 'libnetfilter_queue'
+  # - 'socat'
+
+INGRESS:
+  - 'ingress-namespace.yml'
+  - 'ingress-clusterrole.yml'
+  - 'ingress-rolebinding.yml'
+  - 'ingress-configmap.yml'
+  - 'ingress-deployment.yml'
+  - 'ingress-svc.yml'  

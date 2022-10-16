@@ -1,0 +1,6 @@
+#Ignorar directorio de trabajo
+*.retry
+*.swp
+workfiles
+workfiles/*
+

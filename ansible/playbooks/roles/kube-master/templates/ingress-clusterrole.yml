@@ -1,0 +1,8 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ingress-nginx-clusterrole
+rules:
+- apiGroups: ["","extensions"] # "" indicates the core API group
+  resources: ["services","ingresses","secrets","endpoints","configmaps","events","pods","ingresses/status","nodes"]
+  verbs: ["get", "watch", "list", "update", "patch", "create", "delete"]

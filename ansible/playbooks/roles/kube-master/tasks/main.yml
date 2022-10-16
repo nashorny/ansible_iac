@@ -1,0 +1,11 @@
+- name: kube-master-tasks
+  become: true
+  import_tasks: kube-master-tasks.yml
+
+- name: kube-master-dashboard
+  become: true
+  import_tasks: kube-master-dashboard.yml
+
+- name: kube-master-ingress
+  become: true
+  import_tasks: kube-master-ingress.yml

@@ -1,0 +1,4 @@
+---
+- name: mesos-install-tasks
+  become: true
+  import_tasks: mesos-install-tasks.yml

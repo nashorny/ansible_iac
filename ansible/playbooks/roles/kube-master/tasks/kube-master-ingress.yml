@@ -1,0 +1,7 @@
+- name: kube-master-ingress > Transfer nginx controller yaml files
+  template: src={{ item }} dest=/tmp
+  with_items: '{{ INGRESS }}'
+
+- name: kube-master-ingress > Apply ingress nginx controller configuration
+  shell: 'kubectl apply -f /tmp/{{ item }}'
+  with_items: '{{ INGRESS }}'

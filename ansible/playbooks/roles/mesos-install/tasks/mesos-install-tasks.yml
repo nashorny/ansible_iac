@@ -1,0 +1,59 @@
+- name: mesos-install-tasks > Disable selinux
+  selinux: state=disabled
+  when: ansible_distribution == "CentOS"
+
+- name: mesos-install-tasks > change hostname
+  hostname: name={{ inventory_hostname }}
+
+# - name: mesos-install-tasks > Enable cgconfig daemon
+#   systemd: state=started enabled=yes name=cgconfig
+
+- name: mesos-install-tasks > Modify kernel parameters
+  sysctl: name={{ item }} value=1 reload=yes state=present
+  with_items:
+    - '{{ KERNELPARAMS }}'
+
+- block:
+    - name: mesos-install-tasks > Install requirements
+      package: state=present name={{ item }}
+      with_items: 
+        - '{{ REQUIREMENTS }}'
+
+    - name: mesos-install-tasks > Add mesosphere yum repo
+      shell: 'rpm -Uvh http://repos.mesosphere.com/el/7/noarch/RPMS/mesosphere-el-repo-7-3.noarch.rpm'
+    
+    - name: mesos-install-tasks > Install mesos RPM Key
+      rpm_key: state=present key=/etc/pki/rpm-gpg/RPM-GPG-KEY-mesosphere
+
+  when: ansible_distribution == "CentOS"
+
+- block:
+    - name: mesos-install-tasks > Install requirements
+      package: state=present name={{ item }}
+      with_items: 
+        - '{{ REQUIREMENTSUBUNTU }}'
+
+    - name: mesos-install-tasks > add mesosphere ubuntu Key
+      shell: 'apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF'
+    
+    - name: mesos-install-tasks > add mesosphere repo
+      apt_repository: state=present repo="deb http://repos.mesosphere.io/ubuntu xenial main" filename=mesosphere
+
+  when: ansible_distribution == "Ubuntu"
+
+- name: mesos-install-tasks > Enable docker daemon
+  systemd: state=started enabled=yes name=docker
+
+- name: mesos-install-tasks > Launch install mesos package
+  package: state=present name=mesos
+  retries: 3
+  delay: 5
+  register: result
+  until: result is succeeded
+
+# - name: Limit mesos repo bandwidth
+#   shell: 'yum-config-manager --setopt=mesosphere*.throttle=300000 --save'
+
+
+
+
